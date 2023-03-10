@@ -9,7 +9,6 @@ enemy_stats = []
 player_inventory = []
 player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
-# aaa
 
 
 def menu():
