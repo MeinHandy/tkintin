@@ -11,6 +11,7 @@ player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
 # aaa
 
+
 def menu():
     clear_bottom_frame()
     action_box.grid(row=4, column=1, padx=10, pady=3, sticky="WE")
