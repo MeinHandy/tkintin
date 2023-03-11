@@ -1,18 +1,23 @@
 from tkinter import *
 from tkinter import ttk
+import random as ran
 
 # variables to store the account balance
 enemy_stats = []
 player_inventory = ["old sock"]
 player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
-wares = ["short sword", "mace", "broadsword", "the throngler"]
-# shop items can be added freely, dictionary for individual prices?
+wares = {"short sword": 20, "mace": 20, "broadsword": 30, "the throngler": 45, "Health potion": 10}
+consumable_items = ["Health potion", "old sock", "moist old sock", "soggy old sock", "damp old sock", "wet old sock"]
+
+
+# list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
 # all the function
 def menu():
     clear_bottom_frame()
+    consumed_label.grid_forget()
     action_box.grid(row=4, column=0, padx=10, pady=3, sticky="WE")
     submit_button.grid(row=5, column=0, padx=10, pady=10)
     balance_label.grid(row=3, column=0)  # row, column subject to change
@@ -37,7 +42,7 @@ def fought():  # for after combat
     global player_balance, balance_total
     clear_bottom_frame()
     player_stats["Health"] -= 5
-    player_info.set(player_stats)  # player loses health, will be actual damage at some point maybe
+    update_stats()  # player loses health, will be accurate damage at some point maybe
     if player_stats["Health"] > 0:
         player_balance += 5  # money gained post combat, temporary probably
         balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
@@ -53,7 +58,7 @@ def respawn():  # resets stats after respawn button is pressed
     player_inventory = ["old sock"]  # resets inventory
     player_balance = 0  # resets money
     player_stats = {"Level": 1, "Health": 20, "Damage": 5}  # resets stats
-    player_info.set(player_stats)  # displays reset stats
+    update_stats()  # updates reset stats
     balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
     inventory_box['values'] = player_inventory  # re-displays inventory so its empty
     inventory_display.set(player_inventory[0])  # makes the selected item the first, so it doesn't show old item
@@ -75,8 +80,8 @@ def shop():  # called on button press
 
 def purchase_item():
     global player_balance, player_inventory, balance_total, inventory_display
-    if player_balance >= 10:
-        player_balance -= 10
+    if player_balance >= wares[shop_item.get()]:
+        player_balance -= wares[shop_item.get()]
         balance_total.set(player_balance)
         bought_item_string.set(shop_item.get() + " bought")
         bought_item.grid(row=1, column=1)
@@ -88,6 +93,7 @@ def purchase_item():
 
 # runs function for each choice when chosen
 def intersection():
+    consumed_label.grid_forget()
     choice = chosen_action.get()
     if choice == "Fight":
         combat()
@@ -105,15 +111,58 @@ def get_item():
     inventory_box['values'] = player_inventory
 
 
+def use_item():  # consume item logic
+    global player_inventory, consumable_items, player_stats
+    if inventory_box.get() in consumable_items:  # checks if item is consumable
+        if inventory_box.get() == "Health potion":  # checks if item is Health potion is true does health potion things
+            player_stats["Health"] += 15
+            update_stats()
+        elif inventory_box.get() == "old sock":
+            player_inventory.append("moist old sock")
+            inventory_box['values'] = player_inventory
+        elif inventory_box.get() == "moist old sock":
+            player_inventory.append("damp old sock")
+            inventory_box['values'] = player_inventory
+        elif inventory_box.get() == "damp old sock":
+            player_inventory.append("soggy old sock")
+            inventory_box['values'] = player_inventory
+        elif inventory_box.get() == "soggy old sock":
+            player_inventory.append("wet old sock")
+            inventory_box['values'] = player_inventory
+        elif inventory_box.get() == "wet old sock":
+            player_inventory.append("drenched old sock")
+            inventory_box['values'] = player_inventory
+
+        consumed_text.set(inventory_box.get() + " consumed.")
+        consumed_label.grid()
+        if inventory_box.get() != "drenched old sock":
+            player_inventory.remove(inventory_box.get())  # removes it from the inventory
+        inventory_box['values'] = player_inventory  # updates the inventory combobox
+        inventory_display.set(player_inventory[0])  # changes back to item 0, so it no longer displays the item
+    else:
+        consumed_text.set(inventory_box.get() + " is not consumable.")
+        consumed_label.grid()
+
+
+def quit_game():
+    quit("quit button")
+
+
+def update_stats():
+    global player_stats
+    player_info.set("{} {} \n{} {} \n{} {}".format(list(player_stats)[0], player_stats['Level'],
+                                                   list(player_stats)[1], player_stats['Health'],
+                                                   list(player_stats)[2], player_stats['Damage']))
+
+
 # tkinter init
 root = Tk()
-root.title("Shit game")
+root.title("Sock Simulator 2023")
 # menu widgets
 player_frame = ttk.LabelFrame(root, text="Player")
 player_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
 player_info = StringVar()
-player_info.set(player_stats)  # lol w/e
-
+update_stats()
 details_label = ttk.Label(player_frame, textvariable=player_info)
 details_label.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
 
@@ -156,12 +205,12 @@ menu_button = ttk.Button(action_frame, text="Return", command=menu)
 
 # shop
 shop_item = StringVar()
-shop_item.set(wares[0])
+shop_item.set("Health potion")
 shop_combobox = ttk.Combobox(action_frame, textvariable=shop_item, state="readonly")
-shop_combobox['values'] = wares
+shop_combobox['values'] = list(wares)
 purchase_button = ttk.Button(action_frame, text="Buy", command=purchase_item)
 bought_item_string = StringVar()
-bought_item_string.set("placeholder")
+bought_item_string.set("funny secret message")
 bought_item = ttk.Label(action_frame, textvariable=bought_item_string)
 
 # money update real time
@@ -177,7 +226,15 @@ inventory_display = StringVar()
 inventory_display.set(player_inventory[0])
 inventory_box = ttk.Combobox(inventory_frame, textvariable=inventory_display, state="readonly")
 inventory_box['values'] = player_inventory
+# use item button
+use_button = ttk.Button(inventory_frame, text="Use", command=use_item)
+use_button.grid(row=1, column=1, padx=10, pady=10, sticky="NSEW")
+consumed_text = StringVar()
+consumed_text.set("placeholder consumable")
+consumed_label = ttk.Label(inventory_frame, textvariable=consumed_text)
 
+quit_button = ttk.Button(root, text="Quit game", command=quit_game)
+quit_button.grid(row=3, column=2)
 
 # Run the mainloop and starts menu
 menu()
