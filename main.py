@@ -2,9 +2,6 @@ from tkinter import *
 from tkinter import ttk
 
 # variables to store the account balance
-savings_balance = 0
-phone_balance = 0
-holiday_balance = 0
 enemy_stats = []
 player_inventory = ["old sock"]
 player_balance = 0
@@ -23,12 +20,14 @@ def menu():
     inventory_box.grid(row=1, column=0)
 
 
+
 def clear_bottom_frame():
     for widget in action_frame.winfo_children():
         widget.grid_forget()
 
 
 def combat():  # called on button press for combat
+    global player_balance, balance_total
     clear_bottom_frame()
     enemy_label.grid(row=4, column=1, columnspan=2, padx=20, pady=10)
     attack_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
@@ -37,10 +36,28 @@ def combat():  # called on button press for combat
 def fought():  # for after combat
     global player_balance, balance_total
     clear_bottom_frame()
-    player_balance += 5  # money gained post combat, temporary probably
+    player_stats["Health"] -= 5
+    player_info.set(player_stats)  # player loses health, will be actual damage at some point maybe
+    if player_stats["Health"] > 0:
+        player_balance += 5  # money gained post combat, temporary probably
+        balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
+        combat_over.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
+        menu_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+    else:  # if player low health they die
+        death_label.grid(row=4, column=1, columnspan=2, padx=20, pady=10)
+        respawn_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)  # shows respawn button
+
+
+def respawn():  # resets stats after respawn button is pressed
+    global player_inventory, player_stats, player_balance
+    player_inventory = ["old sock"]  # resets inventory
+    player_balance = 0  # resets money
+    player_stats = {"Level": 1, "Health": 20, "Damage": 5}  # resets stats
+    player_info.set(player_stats)  # displays reset stats
     balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
-    combat_over.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
-    menu_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+    inventory_box['values'] = player_inventory  # re-displays inventory so its empty
+    inventory_display.set(player_inventory[0])  # makes the selected item the first, so it doesn't show old item
+    menu()  # sends player to the menu
 
 
 def sleep():  # called on button press
@@ -94,7 +111,6 @@ root.title("Shit game")
 # menu widgets
 player_frame = ttk.LabelFrame(root, text="Player")
 player_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
-
 player_info = StringVar()
 player_info.set(player_stats)  # lol w/e
 
@@ -121,6 +137,11 @@ enemy_label = ttk.Label(action_frame, textvariable=enemy)
 post_combat = StringVar()
 post_combat.set("Battle ended.")
 combat_over = ttk.Label(action_frame, textvariable=post_combat)
+# death during combat
+death_message = StringVar()
+death_message.set("You have perished")
+death_label = ttk.Label(action_frame, textvariable=death_message)
+respawn_button = ttk.Button(action_frame, text="Respawn", command=respawn)
 
 # rest var ect
 resting = StringVar()
