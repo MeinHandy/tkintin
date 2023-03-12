@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import random as ran
+import time
 
 # variables to store the account balance
 enemy_stats = []
@@ -10,19 +11,18 @@ player_stats = {"Level": 1, "Health": 20, "Damage": 5}
 wares = {"short sword": 20, "mace": 20, "broadsword": 30, "the throngler": 45, "Health potion": 10}
 consumable_items = ["Health potion", "old sock", "moist old sock", "soggy old sock", "damp old sock", "wet old sock"]
 
-
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
 # all the function
 def menu():
     clear_bottom_frame()
+    clear_combat_frame()
     consumed_label.grid_forget()
-    action_box.grid(row=4, column=0, padx=10, pady=3, sticky="WE")
-    submit_button.grid(row=5, column=0, padx=10, pady=10)
     balance_label.grid(row=3, column=0)  # row, column subject to change
     balance_display.grid(row=3, column=1)
     inventory_box.grid(row=1, column=0)
+    start_combat.grid()
 
 
 
@@ -31,9 +31,14 @@ def clear_bottom_frame():
         widget.grid_forget()
 
 
-def combat():  # called on button press for combat
+def clear_combat_frame():
+    for widget in combat_frame.winfo_children():
+        widget.grid_forget()
+
+
+def init_combat():  # called on button press for combat
     global player_balance, balance_total
-    clear_bottom_frame()
+    clear_combat_frame()
     enemy_label.grid(row=4, column=1, columnspan=2, padx=20, pady=10)
     attack_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
@@ -49,6 +54,7 @@ def fought():  # for after combat
         combat_over.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
         menu_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
     else:  # if player low health they die
+        clear_combat_frame()
         death_label.grid(row=4, column=1, columnspan=2, padx=20, pady=10)
         respawn_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)  # shows respawn button
 
@@ -89,20 +95,6 @@ def purchase_item():
     else:
         bought_item_string.set("Insufficient funds")
         bought_item.grid(row=1, column=1)
-
-
-# runs function for each choice when chosen
-def intersection():
-    consumed_label.grid_forget()
-    choice = chosen_action.get()
-    if choice == "Fight":
-        combat()
-    elif choice == "Sleep":
-        sleep()
-    elif choice == "Shop":
-        shop()
-    else:
-        print("the funny secret else statement you cannot achieve.. unless you can. pls report bug")
 
 
 def get_item():
@@ -176,21 +168,22 @@ action_list = ["Fight", "Sleep", "Shop"]
 chosen_action = StringVar()
 chosen_action.set(action_list[0])
 
-action_box = ttk.Combobox(action_frame, textvariable=chosen_action, state="readonly")
-action_box['values'] = action_list
-
 # combat var ect
+combat_frame = ttk.LabelFrame(root)
+combat_frame.grid(row=1, column=1, sticky="NSEW", padx=10, pady=10)
+start_combat = ttk.Button(combat_frame, text="Fight", command=init_combat)
+start_combat.grid()
 enemy = StringVar()
 enemy.set("Boneman")
-enemy_label = ttk.Label(action_frame, textvariable=enemy)
+enemy_label = ttk.Label(combat_frame, textvariable=enemy)
 post_combat = StringVar()
 post_combat.set("Battle ended.")
-combat_over = ttk.Label(action_frame, textvariable=post_combat)
+combat_over = ttk.Label(combat_frame, textvariable=post_combat)
 # death during combat
-death_message = StringVar()
-death_message.set("You have perished")
-death_label = ttk.Label(action_frame, textvariable=death_message)
-respawn_button = ttk.Button(action_frame, text="Respawn", command=respawn)
+death_label = ttk.Label(combat_frame, text="You have perished.")
+respawn_button = ttk.Button(combat_frame, text="Respawn", command=respawn)
+# combat button
+attack_enemy = ttk.Button(root, text="Attack Enemy!")
 
 # rest var ect
 resting = StringVar()
@@ -198,10 +191,9 @@ resting.set("You feel rested.")
 rest_label = ttk.Label(action_frame, textvariable=resting)
 
 # submit send to intersection function
-attack_button = ttk.Button(action_frame, text="Attack", command=fought)
-submit_button = ttk.Button(action_frame, text="Continue", command=intersection)
+attack_button = ttk.Button(combat_frame, text="Attack", command=fought)
 # general menu button
-menu_button = ttk.Button(action_frame, text="Return", command=menu)
+menu_button = ttk.Button(combat_frame, text="Return", command=menu)
 
 # shop
 shop_item = StringVar()
