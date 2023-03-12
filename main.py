@@ -1,7 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import random as ran
-import time
 
 # variables to store the account balance
 enemy_stats = []
@@ -10,7 +8,6 @@ player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
 wares = {"short sword": 20, "mace": 20, "broadsword": 30, "the throngler": 45, "Health potion": 10}
 consumable_items = ["Health potion", "old sock", "moist old sock", "soggy old sock", "damp old sock", "wet old sock"]
-
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
@@ -23,7 +20,6 @@ def menu():
     balance_display.grid(row=3, column=1)
     inventory_box.grid(row=1, column=0)
     start_combat.grid()
-
 
 
 def clear_bottom_frame():
