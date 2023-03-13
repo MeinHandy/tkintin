@@ -132,7 +132,7 @@ def resting():
 
 # tkinter init
 root = Tk()
-root.title("Sock Simulator 2023")
+root.title("Flummery")
 # menu widgets
 player_frame = ttk.LabelFrame(root, text="Player")
 player_frame.grid(row=0, column=0, padx=10, pady=10, sticky="NSEW")
