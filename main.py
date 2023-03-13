@@ -1,13 +1,15 @@
 from tkinter import *
 from tkinter import ttk
+import random
 
 # variables to store the account balance
 enemy_stats = []
 player_inventory = ["old sock"]
 player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
-wares = {"Short sword": 20, "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
+wares = {"Short sword": 20,     "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
 consumable_items = ["Health potion"]
+enemy_list = ["Boneman", "Bonewoman", "Drunkard", ""]  # added multiple enemies
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
@@ -45,6 +47,8 @@ def init_combat():  # called on button press for combat
     clear_shop_frame()
     clear_combat_frame()
     clear_rest_frame()
+    random.shuffle(enemy_list)
+    enemy.set(enemy_list[0])
     enemy_label.grid(row=4, column=1, columnspan=2, padx=20, pady=10)
     attack_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
