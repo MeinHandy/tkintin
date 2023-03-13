@@ -123,7 +123,11 @@ def update_stats():
 
 
 def resting():
-    print("we rest")
+    global player_stats
+    if player_stats["Health"] < 20:
+        player_stats["Health"] = 20
+    update_stats()
+    rest_label.grid()
 
 
 # tkinter init
