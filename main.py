@@ -7,7 +7,7 @@ player_inventory = ["old sock"]
 player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5}
 wares = {"Short sword": 20, "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
-consumable_items = ["Health potion", "old sock", "moist old sock", "soggy old sock", "damp old sock", "wet old sock"]
+consumable_items = ["Health potion"]
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
@@ -101,22 +101,6 @@ def use_item():  # consume item logic
         if inventory_box.get() == "Health potion":  # checks if item is Health potion is true does health potion things
             player_stats["Health"] += 15
             update_stats()
-        elif inventory_box.get() == "old sock":
-            player_inventory.append("moist old sock")
-            inventory_box['values'] = player_inventory
-        elif inventory_box.get() == "moist old sock":
-            player_inventory.append("damp old sock")
-            inventory_box['values'] = player_inventory
-        elif inventory_box.get() == "damp old sock":
-            player_inventory.append("soggy old sock")
-            inventory_box['values'] = player_inventory
-        elif inventory_box.get() == "soggy old sock":
-            player_inventory.append("wet old sock")
-            inventory_box['values'] = player_inventory
-        elif inventory_box.get() == "wet old sock":
-            player_inventory.append("drenched old sock")
-            inventory_box['values'] = player_inventory
-
         consumed_text.set(inventory_box.get() + " consumed.")
         consumed_label.grid()
         player_inventory.remove(inventory_box.get())  # removes it from the inventory
