@@ -6,10 +6,10 @@ import random
 enemy_stats = []
 player_inventory = ["old sock"]
 player_balance = 0
-player_stats = {"Level": 1, "Health": 20, "Damage": 5}
+player_stats = {"Level": 1, "Health": 20, "Damage": 5, "XP": 0}
 wares = {"Short sword": 20,     "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
 consumable_items = ["Health potion"]
-enemy_list = ["Boneman", "Bonewoman", "Drunkard", ""]  # added multiple enemies
+enemy_list = ["Boneman", "Bonewoman", "Drunkard"]  # added multiple enemies
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
 
 
@@ -54,12 +54,12 @@ def init_combat():  # called on button press for combat
 
 
 def fought():  # for after combat
-    global player_balance, balance_total
+    global player_balance, balance_total, player_stats
     player_stats["Health"] -= 5
     update_stats()  # player loses health, will be accurate damage at some point maybe
     if player_stats["Health"] > 0:
         player_balance += 5  # money gained post combat, temporary probably
-        balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
+        update_money()  # calls the function
         combat_over.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
         menu_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
     else:  # if player low health they die
@@ -74,7 +74,7 @@ def respawn():  # resets stats after respawn button is pressed
     player_balance = 0  # resets money
     player_stats = {"Level": 1, "Health": 20, "Damage": 5}  # resets stats
     update_stats()  # updates reset stats
-    balance_total.set(player_balance)  # sets the DoubleVar to balance to update GUI
+    update_money()  # sets the DoubleVar to balance to update GUI
     inventory_box['values'] = player_inventory  # re-displays inventory so its empty
     inventory_display.set(player_inventory[0])  # makes the selected item the first, so it doesn't show old item
     menu()  # sends player to the menu
@@ -84,7 +84,7 @@ def purchase_item():
     global player_balance, player_inventory, balance_total, inventory_display
     if player_balance >= wares[shop_item.get()]:
         player_balance -= wares[shop_item.get()]
-        balance_total.set(player_balance)
+        update_money()
         bought_item_string.set(shop_item.get() + " bought")
         bought_item.grid(row=1, column=1)
         get_item()
@@ -109,7 +109,7 @@ def use_item():  # consume item logic
         consumed_label.grid()
         player_inventory.remove(inventory_box.get())  # removes it from the inventory
         inventory_box['values'] = player_inventory  # updates the inventory combobox
-        inventory_display.set(player_inventory[0])  # changes back to item 0, so it no longer displays the item
+        inventory_display.set(player_inventory[0])  # changes back to item 0, so it no longer displays the used item
     else:
         consumed_text.set(inventory_box.get() + " is not consumable.")
         consumed_label.grid()
@@ -124,6 +124,11 @@ def update_stats():
     player_info.set("{} {} \n{} {} \n{} {}".format(list(player_stats)[0], player_stats['Level'],
                                                    list(player_stats)[1], player_stats['Health'],
                                                    list(player_stats)[2], player_stats['Damage']))
+
+
+def update_money():  # sets the DoubleVar to be the new player balance. so the DoubleVar can be displayed
+    global player_balance
+    balance_total.set(player_balance)
 
 
 def resting():
@@ -173,7 +178,6 @@ attack_button = ttk.Button(combat_frame, text="Attack", command=fought)
 menu_button = ttk.Button(combat_frame, text="Return", command=menu)
 
 # shop
-
 shop_frame = ttk.LabelFrame(root, text="Shop")
 shop_frame.grid(row=1, column=0, padx=10, pady=10, sticky="NSEW")
 shop_item = StringVar()
@@ -182,7 +186,6 @@ shop_combobox = ttk.Combobox(shop_frame, textvariable=shop_item, state="readonly
 shop_combobox['values'] = list(wares)
 purchase_button = ttk.Button(shop_frame, text="Buy", command=purchase_item)
 bought_item_string = StringVar()
-bought_item_string.set("funny secret message")
 bought_item = ttk.Label(shop_frame, textvariable=bought_item_string)
 
 # money update real time
@@ -202,7 +205,6 @@ inventory_box['values'] = player_inventory
 use_button = ttk.Button(inventory_frame, text="Use", command=use_item)
 use_button.grid(row=1, column=1, padx=10, pady=10, sticky="NSEW")
 consumed_text = StringVar()
-consumed_text.set("placeholder consumable")
 consumed_label = ttk.Label(inventory_frame, textvariable=consumed_text)
 
 quit_button = ttk.Button(root, text="Quit game", command=quit_game)
