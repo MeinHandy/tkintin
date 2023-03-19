@@ -7,7 +7,7 @@ enemy_stats = []
 player_inventory = ["old sock"]
 player_balance = 0
 player_stats = {"Level": 1, "Health": 20, "Damage": 5, "XP": 0}
-wares = {"Short sword": 20,     "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
+wares = {"Short sword": 20, "Mace": 20, "Broadsword": 30, "The Throngler": 45, "Health potion": 10}
 consumable_items = ["Health potion"]
 enemy_list = ["Boneman", "Bonewoman", "Drunkard"]  # added multiple enemies
 # list of what can be consumed shop items can be added freely, dictionary allows for unique prices
@@ -59,7 +59,9 @@ def fought():  # for after combat
     update_stats()  # player loses health, will be accurate damage at some point maybe
     if player_stats["Health"] > 0:
         player_balance += 5  # money gained post combat, temporary probably
+        player_stats["XP"] += 10
         update_money()  # calls the function
+        update_stats()
         combat_over.grid(row=4, column=1, columnspan=2, padx=10, pady=10)
         menu_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
     else:  # if player low health they die
@@ -81,7 +83,7 @@ def respawn():  # resets stats after respawn button is pressed
 
 
 def purchase_item():
-    global player_balance, player_inventory, balance_total, inventory_display
+    global player_balance
     if player_balance >= wares[shop_item.get()]:
         player_balance -= wares[shop_item.get()]
         update_money()
@@ -93,7 +95,7 @@ def purchase_item():
         bought_item.grid(row=1, column=1)
 
 
-def get_item():
+def get_item():  # adds the item to the inventory
     global player_inventory
     player_inventory.append(shop_item.get())
     inventory_box['values'] = player_inventory
@@ -115,11 +117,11 @@ def use_item():  # consume item logic
         consumed_label.grid()
 
 
-def quit_game():
+def quit_game():  # closes game
     quit("quit button")
 
 
-def update_stats():
+def update_stats():  # updates the player stats for the GUI
     global player_stats
     player_info.set("{} {} \n{} {} \n{} {}".format(list(player_stats)[0], player_stats['Level'],
                                                    list(player_stats)[1], player_stats['Health'],
@@ -131,7 +133,7 @@ def update_money():  # sets the DoubleVar to be the new player balance. so the D
     balance_total.set(player_balance)
 
 
-def resting():
+def resting():  # heals the player on rest, end the day
     global player_stats
     if player_stats["Health"] < 20:
         player_stats["Health"] = 20
